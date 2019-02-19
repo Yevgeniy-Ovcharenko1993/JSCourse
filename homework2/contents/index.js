@@ -5,47 +5,57 @@ const config = {
   path: process.env.PATH_CL,
 };
 
-function getContentOfCheckedFiles(path) {
-  fs.readdir(path, (error, files) => {
-    if (error) {
-      console.log(error.message);
-      return false;
+function readFiles(dirname, onFileContent, onError) {
+  fs.readdir(dirname, (err, filenames) => {
+    if (err) {
+      onError(err);
+      return;
     }
-    for (let i = 0; i < files.length; i++) {
-      fs.readFile(`${path}${files[i]}`, (err, buf) => {
-        if (err) throw err;
-        for (let a = 0, len = buf.length; a < len; a++) {
-          if (buf[i] > 127) {
-            break;
-          } else {
-            return files[i];
-          }
+    filenames.forEach(filename => {
+      fs.readFile(dirname + filename, 'utf-8', (error, content) => {
+        if (error) {
+          onError(error);
+          return;
         }
+        onFileContent(filename, content);
       });
-    }
+    });
   });
 }
 
 async function start() {
-  const result = await getContentOfCheckedFiles(config.path);
-  if (result.length === 0) {
-    console.log('Failed!!! YOU ARE LOOOOOSER BLATb');
-  } else {
-    await fs.readFile(config.path, 'utf8', (err, data) => {
+  const data = {};
+
+  await readFiles(
+    config.path,
+    (filename, content) => {
+      data[filename] = content;
+    },
+    err => {
+      throw err;
+    },
+  );
+
+  await fs.writeFile(
+    `/home/yevhenii/Documents/Courses/ma-nodejs-course-2019/homework2/contents/content.txt`,
+    `${data}`,
+    err => {
       if (err) {
         console.log(err.message);
+        return false;
       }
-      fs.writeFile(
-        `/home/yevhenii/Documents/Courses/ma-nodejs-course-2019/homework2/contents/content.txt`,
-        `${data}`,
-        err => {
-          if (err) {
-            console.log(err.message);
-            return false;
-          }
-          console.log('file created. data inserted');
-        },
-      );
-    }
-  };
+      console.log('file created. data inserted');
+    },
+  );
 }
+
+start();
+
+//   for (let a = 0, len = buf.length; a < len; a++) {
+//     if (buf[i] > 127) {
+//       break;
+//     } else {
+//       return files[i];
+//     }
+//   }
+// }
