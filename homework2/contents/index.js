@@ -6,7 +6,7 @@ function readFiles() {
   fs.readdir(PATH_CL, (readDirError, filenames) => {
     if (readDirError) {
       console.log(readDirError.message);
-      return;
+      return false;
     }
     filenames.forEach(filename => {
       fs.readFile(PATH_CL + filename, 'utf-8', (filesError, content) => {
@@ -14,7 +14,9 @@ function readFiles() {
           console.log(filesError.message);
         }
         fs.appendFile(`${PATH_CL}/contents.txt`, `${content}\n`, appendError => {
-          if (appendError) throw appendError;
+          if (appendError) {
+            console.log(appendError.message);
+          }
           console.log('Saved!');
         });
       });
