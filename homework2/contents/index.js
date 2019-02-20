@@ -1,9 +1,9 @@
-require('dotenv').config();
 const fs = require('fs');
 
-const config = {
-  path: process.env.PATH_CL,
-};
+function grab(flag) {
+  const index = process.argv.indexOf(flag);
+  return index === -1 ? null : process.argv[index + 1];
+}
 
 function readFiles(dirname, onFileContent, onError) {
   fs.readdir(dirname, (err, filenames) => {
@@ -27,7 +27,7 @@ async function start() {
   const data = {};
 
   await readFiles(
-    config.path,
+    grab('--path'),
     (filename, content) => {
       data[filename] = content;
     },
@@ -37,8 +37,8 @@ async function start() {
   );
 
   await fs.writeFile(
-    `/home/yevhenii/Documents/Courses/ma-nodejs-course-2019/homework2/contents/content.txt`,
-    `${data}`,
+    `/home/dev41/Documents/MOC/Practice/ma-nodejs-course-2019/homework2/contents/content.txt`,
+    data,
     err => {
       if (err) {
         console.log(err.message);
