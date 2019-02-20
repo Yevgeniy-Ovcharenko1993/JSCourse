@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { exec } = require('child_process');
 
 const PATH_CL = process.argv[2];
 
@@ -9,18 +10,27 @@ function readFiles() {
       return false;
     }
     filenames.forEach(filename => {
-      fs.readFile(PATH_CL + filename, 'utf-8', (filesError, content) => {
-        if (filesError) {
-          console.log(filesError.message);
+      exec(`file ${PATH_CL + filename}`, (error, stdout) => {
+        if (error) {
+          console.log(error.message);
+          return false;
         }
-        fs.appendFile(`${PATH_CL}/contents.txt`, `${content}\n`, appendError => {
-          if (appendError) {
-            console.log(appendError.message);
-          }
-          console.log('Saved!');
-        });
+        if (stdout.includes('ASCII'))
+          fs.readFile(PATH_CL + filename, 'UTF-8', (filesError, content) => {
+            if (filesError) {
+              console.log(filesError.message);
+            }
+            fs.appendFile(`${PATH_CL}/contents.txt`, `${content}\n`, appendError => {
+              if (appendError) {
+                console.log(appendError.message);
+              }
+              console.log('Saved!');
+            });
+          });
+        return true;
       });
     });
+    return true;
   });
 }
 
