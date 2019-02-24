@@ -21,7 +21,7 @@ const server = http.createServer((req, res) => {
     response = JSON.stringify({ msg: 'Your time is bigger than max time which is 10000 ms' });
     res.setTimeout(timerResponse, () => {
       res.setHeader('Content-type', 'application/json');
-      res.statusCode = 200;
+      res.statusCode = 400;
       res.end(response);
     });
   } else {
