@@ -13,7 +13,6 @@ const server = http.createServer((req, res) => {
   let response = '';
 
   const { timer } = url.parse(URL, true).query;
-  console.log(timer);
   const intTime = parseInt(timer, 10);
 
   if (req.method === 'POST') {
@@ -23,14 +22,9 @@ const server = http.createServer((req, res) => {
       maxTime = JSON.parse(body);
     });
     req.on('end', () => {
-      console.log(parseInt(maxTime.timer, 10));
+      res.setHeader('Content-type', 'application/json');
       res.end(JSON.stringify(maxTime));
     });
-  } else if (req.method.toString() !== 'GET') {
-    response = JSON.stringify({ msg: 'Bad request' });
-    res.setHeader('Content-type', 'application/json');
-    res.statusCode = 400;
-    res.end(response);
   } else if (parseInt(maxTime.timer, 10) < intTime) {
     response = JSON.stringify({ msg: `Your time is bigger than max time which is ${maxTime} ms` });
     const timerMAX = parseInt(maxTime.timer, 10);
@@ -39,13 +33,23 @@ const server = http.createServer((req, res) => {
       res.statusCode = 400;
       res.end(response);
     });
-  } else {
+  } else if (!intTime) {
     response = JSON.stringify({ msg: 'Pong' });
+    res.setHeader('Content-type', 'application/json');
+    res.statusCode = 200;
+    res.end(response);
+  } else if (req.method.toString() === 'GET') {
+    response = JSON.stringify({ currentTime: intTime, msg: 'OK' });
     res.setTimeout(intTime, () => {
       res.setHeader('Content-type', 'application/json');
-      res.statusCode = 200;
+      res.statusCode = 400;
       res.end(response);
     });
+  } else {
+    response = JSON.stringify({ msg: 'Bad request' });
+    res.setHeader('Content-type', 'application/json');
+    res.statusCode = 400;
+    res.end(response);
   }
 });
 
