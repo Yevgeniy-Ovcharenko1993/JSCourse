@@ -12,7 +12,7 @@ const server = http.createServer((req, res) => {
   const { timer } = url.parse(URL, true).query;
   const intTime = parseInt(timer, 10);
 
-  if (req.method.toString() !== 'GET' || !URL.toString().includes(`/api/ping/?timer=${intTime}`)) {
+  if (req.method.toString() !== 'GET' || !URL.toString().includes('/api/ping')) {
     response = JSON.stringify({ msg: 'Bad request' });
     res.setHeader('Content-type', 'application/json');
     res.statusCode = 400;
@@ -24,12 +24,17 @@ const server = http.createServer((req, res) => {
       res.statusCode = 400;
       res.end(response);
     });
+  } else if (intTime.toString().length === 0) {
+    response = JSON.stringify({ msg: 'Pong' });
+    res.setHeader('Content-type', 'application/json');
+    res.statusCode = 200;
+    res.end(response);
   } else {
     response = JSON.stringify({ msg: 'Pong' });
-    res.setTimeout(intTime, () => {
+    res.setTimeout(timerResponse, () => {
       res.setHeader('Content-type', 'application/json');
-      res.statusCode = 200;
-      res.end();
+      res.statusCode = 400;
+      res.end(response);
     });
   }
 });
