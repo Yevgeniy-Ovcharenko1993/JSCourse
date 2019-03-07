@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const path = require('path');
 
-const readFile = path.resolve(__dirname, '../csv-json-converter/files/Small.csv');
+const readFile = path.resolve(__dirname, '../csv-json-converter/files/small.csv');
 const writeFile = path.resolve(__dirname, '../csv-json-converter/files/result.json');
 
 function cSVFileConverter() {
@@ -10,6 +10,7 @@ function cSVFileConverter() {
   const writeStream = fs.createWriteStream(writeFile);
   let headers = '';
   let lines = '';
+  const data = [];
   readStream.on('data', chunk => {
     console.log('New Chunk received');
     lines = chunk.toString().split('\n');
@@ -20,8 +21,9 @@ function cSVFileConverter() {
         for (let j = 0; j < headers.length; j += 1) {
           obj[headers[j]] = currentLine[j];
         }
-        writeStream.write(JSON.stringify([obj]));
+        data.push(obj);
       }
+      writeStream.write(JSON.stringify(data));
     } else {
       headers = lines[0].split(',');
       lines = chunk.toString().split('\n');
@@ -31,8 +33,9 @@ function cSVFileConverter() {
         for (let j = 0; j < headers.length; j += 1) {
           obj[headers[j]] = currentLine[j];
         }
-        writeStream.write(JSON.stringify([obj]));
+        data.push(obj);
       }
+      writeStream.write(JSON.stringify(data));
     }
   });
 }
